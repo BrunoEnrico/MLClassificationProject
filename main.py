@@ -1,23 +1,28 @@
 import pandas as pd
-import plotly.express as px
+from exploratory_analysis import Analyzer
 
-dados = pd.read_csv('marketing_investimento.csv')
+class MLProject():
+    def __init__(self):
+        self.data = pd.read_csv('marketing_investimento.csv')
+    
+    def process(self):
+        analyzer = Analyzer()
+        target = analyzer.get_target_column(self.data, "aderencia_investimento")
+        data = analyzer.remove_target_column(self.data, target=target.name)
+        data = analyzer.dummy_dataframe_columns(data,
+                                                columns=data.columns,
+                                                columns_to_dummy=["estado_civil",
+                                                                  "escolaridade",
+                                                                  "inadimplencia",
+                                                                  "fez_emprestimo"])
+        target = analyzer.dummy_target_column(target)
+        print(target)
 
-dados.info()
-
-px.histogram(dados, x = 'estado_civil', text_auto=True, color = 'aderencia_investimento', barmode = 'group').show()
-
-px.histogram(dados, x = 'escolaridade', text_auto=True, color = 'aderencia_investimento', barmode = 'group').show()
-
-px.histogram(dados, x = 'inadimplencia', text_auto=True, color = 'aderencia_investimento', barmode = 'group').show()
-
-px.histogram(dados, x = 'fez_emprestimo', text_auto=True, color = 'aderencia_investimento', barmode = 'group').show()
 
 
-px.box(dados, x = 'idade', color = 'aderencia_investimento').show()
 
-px.box(dados, x = 'saldo', color = 'aderencia_investimento').show()
+if __name__ == "__main__":
+    ml = MLProject()
+    ml.process()
 
-px.box(dados, x = 'tempo_ult_contato', color = 'aderencia_investimento').show()
 
-px.box(dados, x = 'numero_contatos', color = 'aderencia_investimento').show()
