@@ -1,12 +1,14 @@
 import pandas as pd
 import plotly.express as px
 from sklearn.compose import make_column_transformer, ColumnTransformer
-from sklearn.preprocessing import OneHotEncoder, LabelEncoder
+from sklearn.preprocessing import OneHotEncoder, LabelEncoder, MinMaxScaler
 from sklearn.model_selection import train_test_split
 from sklearn.dummy import DummyClassifier
-from sklearn.tree import DecisionTreeClassifier
-from sklearn.tree import plot_tree
+from sklearn.tree import DecisionTreeClassifier, plot_tree
+from sklearn.neighbors import KNeighborsClassifier
 import matplotlib.pyplot as plt
+import pickle
+from typing import BinaryIO
 
 class Analyzer:
     def __init__(self):
@@ -62,7 +64,7 @@ class Analyzer:
         return dummy.fit(data, target)
 
     @staticmethod
-    def get_model_score(dummy, data: pd.DataFrame, target: pd.DataFrame):
+    def get_model_score(dummy: DummyClassifier, data: pd.DataFrame, target: pd.DataFrame):
         return dummy.score(data, target)
 
     @staticmethod
@@ -84,10 +86,40 @@ class Analyzer:
         plot_tree(tree, class_names = class_names, feature_names = feature_names, **kwargs)
         plt.show()
 
+    @staticmethod
+    def get_min_max() -> MinMaxScaler:
+        return MinMaxScaler()
+
+    @staticmethod
+    def minmax_transform(minmax: MinMaxScaler, data: pd.DataFrame):
+        return minmax.transform(data)
+
+    @staticmethod
+    def minmax_fit_transform(minmax: MinMaxScaler, data: pd.DataFrame) -> pd.DataFrame:
+        normalized_data = minmax.fit_transform(data)
+        return pd.DataFrame(normalized_data)
+
+    @staticmethod
+    def get_knn_fit(data, target: pd.DataFrame):
+        knn = KNeighborsClassifier()
+        return knn.fit(data, target)
+
+    @staticmethod
+    def get_knn_score(knn: KNeighborsClassifier, data: pd.DataFrame, target: pd.DataFrame):
+        return knn.score(data, target)
+
+    @staticmethod
+    def pickle_dump(name: str, dump):
+        with open(f"model_{name}.pkl", 'wb') as file:
+            # noinspection PyTypeChecker
+            pickle.dump(dump, file)
 
 
-    def dummy_dataframe_columns(self, data: pd.DataFrame, columns: pd.Index, columns_to_dummy: list) -> pd.DataFrame:
+    def dummy_dataframe_columns(self, data: pd.DataFrame, columns_to_dummy: list):
         one_hot = self.make_column_transformer(columns=columns_to_dummy)
         data = self.fit_transform_data(one_hot, data)
-        return pd.DataFrame(data,
-                            columns=one_hot.get_feature_names_out(columns))
+        return one_hot, data
+
+    @staticmethod
+    def convert_onehot_to_dataframe(data, one_hot, columns: pd.Index):
+        return pd.DataFrame(data, columns=one_hot.get_feature_names_out(columns))
