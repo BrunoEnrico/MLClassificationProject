@@ -74,7 +74,6 @@ class MLProject:
             'tempo_ult_contato': [800],
             'numero_contatos': [4]
         })
-        novo_dado = pd.DataFrame(novo_dado)
         novo_dado = one_hot_pickle.transform(novo_dado)
         result = tree_pickle.predict(novo_dado)
         print(f"The model prediction for the new data was {result[0]}")

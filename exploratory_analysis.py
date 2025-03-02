@@ -1,6 +1,7 @@
 import pandas as pd
 import plotly.express as px
 from sklearn.compose import make_column_transformer, ColumnTransformer
+from sklearn.impute import KNNImputer
 from sklearn.preprocessing import OneHotEncoder, LabelEncoder, MinMaxScaler
 from sklearn.model_selection import train_test_split
 from sklearn.dummy import DummyClassifier
@@ -8,7 +9,7 @@ from sklearn.tree import DecisionTreeClassifier, plot_tree
 from sklearn.neighbors import KNeighborsClassifier
 import matplotlib.pyplot as plt
 import pickle
-from typing import BinaryIO
+
 
 class Analyzer:
     def __init__(self):
@@ -100,7 +101,7 @@ class Analyzer:
         return pd.DataFrame(normalized_data)
 
     @staticmethod
-    def get_knn_fit(data, target: pd.DataFrame):
+    def get_knn_fit(data: pd.DataFrame, target: pd.DataFrame) -> KNeighborsClassifier:
         knn = KNeighborsClassifier()
         return knn.fit(data, target)
 

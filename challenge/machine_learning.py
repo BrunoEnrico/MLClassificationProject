@@ -1,12 +1,13 @@
-import pandas as pd
-import plotly.express as px
 from sklearn.compose import make_column_transformer, ColumnTransformer
-from sklearn.preprocessing import OneHotEncoder, LabelEncoder
+from sklearn.preprocessing import OneHotEncoder, LabelEncoder, MinMaxScaler
 from sklearn.model_selection import train_test_split
 from sklearn.dummy import DummyClassifier
-from sklearn.tree import DecisionTreeClassifier
-from sklearn.tree import plot_tree
+from sklearn.tree import plot_tree, DecisionTreeClassifier
+from sklearn.neighbors import KNeighborsClassifier
 import matplotlib.pyplot as plt
+import pandas as pd
+import plotly.express as px
+import pickle
 
 class MachineLearning:
     def __init__(self):
@@ -54,7 +55,12 @@ class MachineLearning:
         return one_hot.fit_transform(data)
 
     @staticmethod
-    def label_encoder_transform_data(label_encoder: LabelEncoder, data: pd.Series):
+    def one_hot_transform(one_hot: ColumnTransformer, data: pd.DataFrame):
+        return one_hot.transform(data)
+
+    @staticmethod
+    def dummy_column(data: pd.Series):
+        label_encoder = LabelEncoder()
         return label_encoder.fit_transform(data)
 
     @staticmethod
@@ -89,13 +95,30 @@ class MachineLearning:
         plot_tree(tree, class_names=class_names, **kwargs)
         plt.show()
 
-    def dummy_columns(self, data: pd.DataFrame, columns: list, columns_to_dummy: list) -> pd.DataFrame:
-        one_hot = self.get_one_hot(columns=columns_to_dummy)
-        data = self.one_hot_transform_data(one_hot=one_hot, data=data)
+    @staticmethod
+    def get_min_max():
+        return MinMaxScaler()
+
+    @staticmethod
+    def minmax_fit_transform(minmax: MinMaxScaler, data: pd.DataFrame) -> pd.DataFrame:
+        normalized_data = minmax.fit_transform(data)
+        return pd.DataFrame(normalized_data)
+
+    @staticmethod
+    def get_knn_fit(data: pd.DataFrame, target: pd.DataFrame) -> KNeighborsClassifier:
+        knn = KNeighborsClassifier()
+        return knn.fit(data, target)
+
+    @staticmethod
+    def get_knn_score(knn: KNeighborsClassifier, data: pd.DataFrame, target: pd.DataFrame) -> float:
+        return knn.score(data, target)
+
+    @staticmethod
+    def convert_onehot_to_dataframe(data: pd.DataFrame, one_hot: OneHotEncoder, columns: list) -> pd.DataFrame:
         return pd.DataFrame(data, columns=one_hot.get_feature_names_out(columns))
 
-    def dummy_column(self, data: pd.Series):
-        label_encoder = LabelEncoder()
-        return self.label_encoder_transform_data(label_encoder, data)
-        
-
+    @staticmethod
+    def pickle_dump(dump, name: str):
+        with open(f"model_{name}.pkl", 'wb') as file:
+            # noinspection PyTypeChecker
+            pickle.dump(dump, file)
